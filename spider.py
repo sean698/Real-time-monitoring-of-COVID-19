@@ -11,14 +11,19 @@ def get_tencent_data():
     today_url = 'https://view.inews.qq.com/g2/getOnsInfo?name=disease_h5'
     history_url = 'https://api.inews.qq.com/newsqa/v1/query/inner/publish/modules/list?modules=chinaDayList,chinaDayAddList,nowConfirmStatis,provinceCompare'
     headers = {
+        'accept': '*/*',
+        'accept-encoding': 'gzip, deflate, br',
+        'accept-language': 'en-US,en;q=0.9,zh;q=0.8,zh-TW;q=0.7,und;q=0.6,zh-CN;q=0.5',
+        'origin': 'https://wp.m.163.com',
+        'referer': 'https://wp.m.163.com/',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36',
     }
     # Get today's data
-    r = requests.get(today_url, headers)
-    res = json.loads(r.text) 
+    r = requests.get(today_url, headers = headers)
+    res = json.loads(r.text)        
     today_data_all = json.loads(res['data'])
     # Get history data
-    r = requests.get(history_url, headers)
+    r = requests.get(history_url, headers = headers)
     res = json.loads(r.text) 
     history_data_all = res['data']
 
@@ -26,27 +31,30 @@ def get_tencent_data():
     history = {}
     # Details for each day
     for i in history_data_all["chinaDayList"]:
-        year = i['y'] + '.'
-        ds = year + i["date"]
+        ds = i["date"]
         # Change the formate of the date otherwise errors would occur when data inserted into database
-        tup = time.strptime(ds, "%Y.%m.%d")
-        ds = time.strftime("%Y-%m-%d", tup)  
-        confirm = i["confirm"]
-        suspect = i["suspect"]
-        heal = i["heal"]
-        dead = i["dead"]
-        history[ds] = {"confirm": confirm, "suspect": suspect, "heal": heal, "dead": dead}
-    for i in history_data_all["chinaDayAddList"]:
-        year = i['y'] + '.'
-        ds = year + i["date"]
-        tup = time.strptime(ds, "%Y.%m.%d")
-        ds = time.strftime("%Y-%m-%d", tup)
-        confirm = i["confirm"]
-        suspect = i["suspect"]
-        heal = i["heal"]
-        dead = i["dead"]
-        history[ds].update({"confirm_add": confirm, "suspect_add": suspect, "heal_add": heal, "dead_add": dead})
+        # tup = time.strptime(ds, "%Y.%m.%d")
+        # ds = time.strftime("%Y-%m-%d", tup) 
+         
+        day_total = i["total"]
+        confirm = day_total["confirm"]
+        suspect = day_total["suspect"]
+        heal = day_total["heal"]
+        dead = day_total["dead"]
 
+        day_add = i["today"]
+        confirm_add = day_add["confirm"]
+        suspect_add = day_add["suspect"]
+        heal_add = day_add["heal"]
+        dead_add = day_add["dead"]
+        history[ds] = {"confirm": confirm, 
+                       "suspect": suspect, 
+                       "heal": heal, 
+                       "dead": dead,
+                       "confirm_add": confirm_add, 
+                       "suspect_add": suspect_add, 
+                       "heal_add": heal_add, 
+                       "dead_add": dead_add}
 
     # Process today's data
     details = []
@@ -145,6 +153,9 @@ def update_history():
         traceback.print_exc()
     finally:
         utils.close_conn(conn, cursor)
+
+
+
 
 if __name__ == '__main__':
     update_details()
