@@ -1,6 +1,6 @@
 body {
 	margin: 0;
-	background: rgba(16,12,42,255)
+	background: #333;
 }
 
 #title {
@@ -12,7 +12,7 @@ body {
 	/* background: #666666; */
 	color: white;
 	font-size: 18px;
-	background: rgba(130, 121, 188, 0.8);
+	background: rgba(126, 129, 81, 0.8);
 	font-family: Arial, Helvetica, sans-serif;
 	display: flex;
 	align-items: center;
