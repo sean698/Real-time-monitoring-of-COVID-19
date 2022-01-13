@@ -11,4 +11,5 @@ Run the server
 ```bash
 python app.py
 ```
-
+## Preview
+![Alt text](static/pic/Preview.png)
