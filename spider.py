@@ -14,8 +14,7 @@ def get_tencent_data():
         'accept': '*/*',
         'accept-encoding': 'gzip, deflate, br',
         'accept-language': 'en-US,en;q=0.9,zh;q=0.8,zh-TW;q=0.7,und;q=0.6,zh-CN;q=0.5',
-        'origin': 'https://wp.m.163.com',
-        'referer': 'https://wp.m.163.com/',
+
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36',
     }
     # Get today's data
@@ -31,30 +30,37 @@ def get_tencent_data():
     history = {}
     # Details for each day
     for i in history_data_all["chinaDayList"]:
-        ds = i["date"]
+        ds = i['y'] + '.' + i["date"]
         # Change the formate of the date otherwise errors would occur when data inserted into database
-        # tup = time.strptime(ds, "%Y.%m.%d")
-        # ds = time.strftime("%Y-%m-%d", tup) 
+        tup = time.strptime(ds, "%Y.%m.%d")
+        ds = time.strftime("%Y-%m-%d", tup) 
          
-        day_total = i["total"]
-        confirm = day_total["confirm"]
-        suspect = day_total["suspect"]
-        heal = day_total["heal"]
-        dead = day_total["dead"]
+        confirm = i["confirm"]
+        suspect = i["suspect"]
+        heal = i["heal"]
+        dead = i["dead"]
+        history[ds] = {
+            "confirm": confirm, 
+            "suspect": suspect, 
+            "heal": heal, 
+            "dead": dead
+        }
 
-        day_add = i["today"]
-        confirm_add = day_add["confirm"]
-        suspect_add = day_add["suspect"]
-        heal_add = day_add["heal"]
-        dead_add = day_add["dead"]
-        history[ds] = {"confirm": confirm, 
-                       "suspect": suspect, 
-                       "heal": heal, 
-                       "dead": dead,
-                       "confirm_add": confirm_add, 
-                       "suspect_add": suspect_add, 
-                       "heal_add": heal_add, 
-                       "dead_add": dead_add}
+    for i in history_data_all["chinaDayAddList"]:
+        ds = i['y'] + '.' + i["date"]
+        tup = time.strptime(ds, "%Y.%m.%d")
+        ds = time.strftime("%Y-%m-%d", tup) 
+
+        confirm_add = i["confirm"]
+        suspect_add = i["suspect"]
+        heal_add = i["heal"]
+        dead_add = i["dead"]
+        history[ds].update({
+            "confirm_add": confirm_add, 
+            "suspect_add": suspect_add, 
+            "heal_add": heal_add, 
+            "dead_add": dead_add
+        })
 
     # Process today's data
     details = []
